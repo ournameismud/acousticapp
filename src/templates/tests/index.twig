@@ -1,0 +1,241 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Acoustic App plugin for Craft CMS 3.x
+ *
+ * Acoustic App index.twig
+ *
+ * @author    @asclearasmud
+ * @copyright Copyright (c) 2018 @asclearasmud
+ * @link      http://ournameismud.co.uk/
+ * @package   AcousticApp
+ * @since     1.0.0
+ */
+#}
+
+{# {% redirect url('acoustic-app/index') %} #}
+{% set title = 'Acoustic App: Search Tests'|t %}
+{% do view.registerAssetBundle("ournameismud\\acousticapp\\assetbundles\\acousticapp\\AcousticAppAsset") %}
+{% extends 'acoustic-app/layout/_cp' %}
+{% set selectedTab = 'tests' %}
+{% set selectedSubnavItem = 'tests' %}
+
+{% set faves = craft.acousticApp.getFaves( currentUser.id ) %}
+{% set favesArray = [] %}
+{% for fave in faves %}
+	{% set favesArray = favesArray|merge([ fave.testId ]) %}
+{% endfor %}
+
+{% set p = craft.request.getParam('o') %}
+{% set sort = craft.request.getParam('sort') %}
+{% set sort = sort|length ? sort : 'asc' %}
+
+{% set p = p|length ? p : 0 %}
+{% set l = 30 %}
+
+{% set criteria = {
+	fireRating: fireRating is defined ? fireRating : craft.request.getParam('fireRating'),
+	dB_min: dB_min is defined ? dB_min : craft.request.getParam('dB_min'),
+	dB_max: dB_max is defined ? dB_max : craft.request.getParam('dB_max'),
+	manufacturer: manufacturer is defined ? manufacturer : craft.request.getParam('manufacturer'),
+	doorset: doorset is defined ? doorset : craft.request.getParam('doorset'),
+	doorThickness_min: doorThickness_min is defined ? doorThickness_min : craft.request.getParam('doorThickness_min'),
+	doorThickness_max: doorThickness_max is defined ? doorThickness_max : craft.request.getParam('doorThickness_max'),
+} %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+	{% if criteria['fireRating'] is iterable %}
+		{% set tmp = criteria['fireRating']|filter|length ? criteria['fireRating'] : null %}
+		{% set criteria = criteria|merge({ fireRating: tmp }) %}
+	{% endif %}
+	{% if criteria['manufacturer'] is iterable %}
+		{% set tmp = criteria['manufacturer']|filter|length ? criteria['manufacturer'] : null %}
+		{% set criteria = criteria|merge({ manufacturer: tmp }) %}
+	{% endif %}
+	
+	{% set suffix = [] %}
+	{% for key, value in criteria %}
+		{% if value|length %}
+			{% if value is iterable %}
+			{% for instance in value %}
+				{% set suffix = suffix|merge([ key ~ '[]=' ~ instance ]) %}
+			{% endfor %}
+			{% else %}
+			{% set suffix = suffix|merge([ key ~ '=' ~ value ]) %}
+			{% endif %}
+		{% endif %}
+	{% endfor %}
+
+	{% set status = criteria|filter|length == 0 ? 'shut' : '' %}
+	<form class="uk-form" action="{{ url('acoustic-app/tests') }}">
+		<input type="hidden" name="sort" value="{{ sort }}" />
+		<button type="button" data-target=".fields-wrapper" class="toggler {{ status }} btn big">Filter Results</button>
+		<fieldset class="fields-wrapper {{ status }} "> 
+		{% set fireRatings = craft.acousticApp.getVars('fireRating')|sort %}		
+		{% set dBs = craft.acousticApp.getVars('dB', false)|sort %}
+		{% set manufacturers = craft.acousticApp.getVars('manufacturer')|sort %}
+		{% set doorsets = craft.acousticApp.getVars('doorset')|sort %}
+		{% set doorThickness = craft.acousticApp.getVars('doorThickness', false)|sort %}
+
+		<table class="data">
+			<tr>
+				<td colspan="2">
+					{{ forms.multiselectField({
+					    label: 'Fire Rating',
+					    id: 'fireRating',
+					    options: fireRatings,
+					    values: criteria.fireRating|length ? criteria.fireRating,
+					    name: 'fireRating' })
+					}}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					{{ forms.selectField({
+					    label: 'Acoustic Rating (min)',
+					    id: 'dB_min',
+					    options: dBs,
+					    value: criteria.dB_min|length ? criteria.dB_min : dBs|first,
+					    name: 'dB_min' })
+					}}
+				</td>
+				<td>
+					{{ forms.selectField({
+					    label: 'Acoustic Rating (max)',
+					    id: 'dB_max',
+					    options: dBs,
+					    value: criteria.dB_max|length ? criteria.dB_max : dBs|last,
+					    name: 'dB_max' })
+					}}
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					{{ forms.multiselectField({
+					    label: 'Manufacturers',
+					    id: 'manufacturer',
+					    options: manufacturers,
+					    values: criteria.manufacturer|length ? criteria.manufacturer,
+					    name: 'manufacturer' })
+					}}
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					{{ forms.selectField({
+					    label: 'Door type',
+					    id: 'doorset',
+					    options: doorsets,
+					    value: criteria.doorset|length ? criteria.doorset,
+					    name: 'doorset' })
+					}}
+				</td>
+			</tr>
+			<tr>
+				<td>		
+					{{ forms.selectField({
+					    label: 'Door Thickness (min)',
+					    id: 'doorThickness_min',
+					    options: doorThickness,
+					    value: criteria.doorThickness_min|length ? criteria.doorThickness_min : doorThickness|first,
+					    name: 'doorThickness_min' })
+					}}
+				</td>
+				<td>
+					{{ forms.selectField({
+					    label: 'Door Thickness (max)',
+					    id: 'doorThickness_max',
+					    options: doorThickness,
+					    value: criteria.doorThickness_max|length ? criteria.doorThickness_max : doorThickness|last,
+					    name: 'doorThickness_max' })
+					}}
+				</td>
+			</tr>
+		</table>
+	
+		<div class="buttons">
+	        <button type="submit" class="btn big submit">{{ "Search"|t }}</bnutton>
+	    </div>
+		</fieldset>
+	</form>
+
+	<hr />
+	
+	<!--{ %if criteria|filter|length > 0 % } -->
+		{% set tests = craft.acousticApp.getTests( criteria, sort ) %}
+		{% if tests|length %}
+		{% set start =  p + 1 %}
+		{% set end = p + l %}
+		{% set end = end > tests|length ? tests|length : end %}
+		
+		<p>
+			Showing {{ start ~ '-' ~ end }} of <strong>{{ tests|length }}</strong> Result{{ tests|length != 1 ? 's' }}
+
+			{% if criteria|filter|length %}
+				{% set hash = craft.acousticApp.logSearch( criteria ) %}
+				<a href="{{ url('acoustic-app/hash/' ~ hash) }}" target="blank">Shareable URL</a>
+			{% endif %}
+		</p>
+		
+		<div class="tableview">
+		<table class="data fullwidth">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Date of Test</th>
+					<th class="sortable sortis-{{ sort }}"><a href="{{ url('acoustic-app/tests' ~ (suffix|length ? suffix|join('&') : '?' ) ~ '&sort=' ~ (sort == 'asc' ? 'desc' : 'asc')) }}">Acoustic Rating</a></th>
+					<th>Fire Door Rating</th>
+					<th>Blank/Door manufacturer</th>
+					<th>Doorset type</th>
+					<th>Door thickness (mm)</th>
+					<th>Glass Type</th>
+					<th>Web Ref</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for test in tests|slice(p,l) %}
+					{% set manufacturer = test.manufacturer %}
+					{% set manufacturer = test.blankName|length ? manufacturer ~ ' ' ~ test.blankName : manufacturer %}
+					<tr>
+						<td>{{ test.id }}</td>
+						<td><a href="{{ url('/admin/acoustic-app/tests/test/' ~ test.id) }}">{{ test.testDate|date('j M Y') }}</a></td>
+						<td>{{ test.dB }}dB</td>
+						<td>{{ test.fireRating }}</td>
+						<td>{{ manufacturer }}</td>
+						<td>{{ test.doorset }}</td>
+						<td>{{ test.doorThickness }}</td>
+						<td>{{ test.glassType }}</td>
+						<td>{{ test.lorientId }}</td>
+						<td>
+							<form method="POST">
+								{{ csrfInput() }}
+								{{ redirectInput('acoustic-app/tests?' ~ suffix|join('&') ~ '&sort=' ~ sort) }}
+								<input type="hidden" name="action" value="acoustic-app/favourites/post" />
+								<input type="hidden" name="testId" value="{{ test.id }}" />
+								<button type="submit" class="fave btn{{ test.id in favesArray ? ' active' }}">{{ test.id in favesArray ? 'Unf' : 'F' }}avourite</button>
+							</form>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		</div>
+		{% if tests|length > l %}
+			{% set suffix = suffix|merge([ 'sort=' ~ sort ]) %}			
+			{% include 'acoustic-app/inc/_paginate' with { 
+				url: 'acoustic-app/tests?' ~ suffix|join('&'), 
+				records: tests,
+				offset: p, 
+				limit: l  } %}
+		{% endif %}
+
+		{% else %}
+		<p>No results for that criteria.</p>
+		{% endif %}
+	<!--{ % endif % }-->
+
+	
+{% endblock %}

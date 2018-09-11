@@ -1,0 +1,53 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Acoustic App plugin for Craft CMS 3.x
+ *
+ * Acoustic App index.twig
+ *
+ * @author    @asclearasmud
+ * @copyright Copyright (c) 2018 @asclearasmud
+ * @link      http://ournameismud.co.uk/
+ * @package   AcousticApp
+ * @since     1.0.0
+ */
+#}
+
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("ournameismud\\acousticapp\\assetbundles\\acousticapp\\AcousticAppAsset") %}
+{% do view.registerAssetBundle("ournameismud\\acousticapp\\assetbundles\\testscpsection\\TestsCPSectionAsset") %}
+
+{% set docsUrl = "https://github.com/ournameismud/acoustic-app/blob/master/README.md" %}
+
+{% set title = "Acoustic App | Tests" %}
+
+{% set pluginCpUrl = url('acoustic-app') %}
+
+{% set iconUrl = view.getAssetManager().getPublishedUrl('@ournameismud/acousticapp/assetbundles/testscpsection/dist', true) ~ '/img/Tests-icon.svg' %}
+
+{% set subnav = {
+    "favourites": { label: "Favourites"|t('acoustic-app'), url: url(pluginCpUrl ~ '/favourites') },
+    "tests": { label: "Tests"|t('acoustic-app'), url: url(pluginCpUrl ~ '/tests') },
+    "searches": { label: "Searches"|t('acoustic-app'), url: url(pluginCpUrl ~ '/searches') },
+
+} %}
+{% set selectedSubnavItem = 'tests' %}
+
+{% set crumbs = [
+    { label: "Acoustic App", url: url(pluginCpUrl) },
+    { label: "Tests"|t('acoustic-app'), url: url(pluginCpUrl ~ '/tests') },
+] %}
+
+{% set extraPageHeaderHtml %}
+    <div class="buttons">
+        <a href="{{ pluginCpUrl }}" class="btn submit add icon">{{ "Click Me!"|t('acoustic-app') }}</a>
+    </div>
+{% endset %}
+
+{% set content %}
+    <h2>{{ "Tests CP Section body goes here"|t('acoustic-app') }}</h2>
+    <img src="{{ iconUrl }}" height="64" width="64" />
+    <p class="textline"></p>
+{% endset %}

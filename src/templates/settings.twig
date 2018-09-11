@@ -1,0 +1,27 @@
+{% set title = 'Acoustic App: Upload Tests'|t %}
+
+{% import "_includes/forms" as forms %}
+{% extends 'acoustic-app/layout/_cp' %}
+
+
+{% block content %}
+	
+	<form class="uk-form" enctype="multipart/form-data" method="POST">
+		
+		{{ forms.fileField({
+		    label: 'Tests file',
+		    instructions: 'CSV file',
+		    id: 'testsFile',
+		    name: 'testsFile' })
+		}}
+
+		<input type="hidden" name="action" value="acoustic-app/tests/upload-tests" />
+		{{ csrfInput() }}
+
+
+	    <div class="buttons">
+	        <button type="submit" class="btn submit add icon">{{ "Upload!"|t }}</bnutton>
+	    </div>
+	</form>
+
+{% endblock %}

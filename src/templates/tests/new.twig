@@ -1,0 +1,53 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Acoustic App plugin for Craft CMS 3.x
+ *
+ * Acoustic App index.twig
+ *
+ * @author    @asclearasmud
+ * @copyright Copyright (c) 2018 @asclearasmud
+ * @link      http://ournameismud.co.uk/
+ * @package   AcousticApp
+ * @since     1.0.0
+ */
+#}
+
+{# {% redirect url('acoustic-app/index') %} #}
+{% set title = 'Acoustic App: Upload Tests'|t %}
+{% extends '_layouts/cp.html' %}
+
+{% set selectedTab = 'tests' %}
+{% set tabs = {
+	'tests' : { url: url('acoustic-app/tests'), label: 'Tests'},
+	'seals' : { url: url('acoustic-app/seals'), label: 'Seals'},
+	'searches' : { url: url('acoustic-app/searches'), label: 'Searches'},
+	'favoudites' : { url: url('acoustic-app/favourites'), label: 'Favourites'}
+} %}
+
+
+{% import "_includes/forms" as forms %}
+
+
+{% block content %}
+	
+	<form class="uk-form" enctype="multipart/form-data" method="POST">
+		
+		{{ forms.fileField({
+		    label: 'Tests file',
+		    instructions: 'CSV file',
+		    id: 'testsFile',
+		    name: 'testsFile' })
+		}}
+
+
+		<input type="hidden" name="action" value="acoustic-app/tests/upload-tests" />
+		{{ csrfInput() }}
+
+
+	    <div class="buttons">
+	        <button type="submit" class="btn submit add icon">{{ "Upload!"|t }}</bnutton>
+	    </div>
+	</form>
+
+{% endblock %}

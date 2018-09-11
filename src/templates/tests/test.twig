@@ -1,0 +1,52 @@
+{% set title = 'Acoustic App: Test '~ testRecord.lorientId %}
+{% do view.registerAssetBundle("ournameismud\\acousticapp\\assetbundles\\acousticapp\\AcousticAppAsset") %}
+{% extends 'acoustic-app/layout/_cp' %}
+{% set selectedTab = 'tests' %}
+
+
+{% set selectedSubnavItem = 'bar' %}
+
+{% block content %}
+		
+	<h1>Test {{ testRecord.lorientId }}: {{ testRecord.testDate|date('jS F Y') }}</h1>
+	{% set rows = {
+		lorientId: 'Web Ref',
+		dB: 'Acoustic Rating',
+		testDate: 'Date of Test',
+		glassType: 'Glass Type',
+		doorset: 'Doorset Type',
+		doorThickness: 'Acoustic Rating',
+		intRef: 'Ref No.',
+		manufacturer: 'Blank/Door Manufacturear',
+		fireRating: 'Acoustic Rating',
+
+	} %}
+
+	<table class="data fullwidth test-wrapper">
+	{% for key, value in rows %}
+		<tr>
+		<th>{{ value }}</th>
+		<td>
+		{% if 'Date' in key %}
+		{{ testRecord[key]|date('j M Y') }}
+		{% elseif key == 'dB' %}
+		{{ testRecord[key] }} dB
+		{% else %}
+		{{ testRecord[key] }}
+		{% endif %}
+		</td>
+	</tr>
+	{% endfor %}
+	{% for context, seals in testSeals %}
+		<tr>
+			<th>{{ context }}</th>
+			<td>
+		{% for code, quantity in seals %}
+			{{ code }} {{ quantity > 1 ? 'x' ~ quantity }}{{ loop.last == null ? '<br />' }}			
+		{% endfor %}
+		</td>
+	</tr>
+	{% endfor %}
+	</table>
+	
+{% endblock %}

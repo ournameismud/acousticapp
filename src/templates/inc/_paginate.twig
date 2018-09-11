@@ -1,0 +1,35 @@
+{% set pages = (records|length / limit)|round(0,'ceil') %}
+{% set current = (offset / limit)|round(0,'floor') %}
+
+{% set start = current - 2 %}
+{% set start = start < 0 ? 0 : start %}
+
+{% set end = start + 5 %}
+{% set end = end > pages ? pages - 1 : end %}
+{# {% set start = (start - 3) < 0 ? start : (start - 3) %} #}
+
+{% set offix = '?' in url ? '&o=' : '?o=' %}
+<div> 
+	<div class="btngroup">
+	<div class="btn">
+		Page {{ current + 1 }} of {{ pages }}
+	</div>&nbsp;
+	{% if current > 0 %}
+		<a href="{{ url(url) }}" class="btn">«</a>
+		<a href="{{ url(url ~ offix ~ (offset - limit)) }}" class="btn">‹</a>&nbsp;
+	{% endif %}
+
+	{% for i in start..end %}
+	<b>
+		<a href="{{ url(url ~ offix ~ (i * limit)) }}" class="btn{{ i == current ? ' active' }}">
+			{{ i + 1 }}
+		</a>
+	</b>
+	{% endfor %}
+
+	{% if (current + 1) < pages %}
+		&nbsp;<a href="{{ url(url ~ offix ~ (offset + limit)) }}" class="btn">›</a>
+		<a href="{{ url(url ~ offix ~ ((pages-1) * limit)) }}" class="btn">»</a>
+	{% endif %}
+	</div>
+</div>

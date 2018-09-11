@@ -1,0 +1,45 @@
+{
+    "name": "ournameismud/acousticapp",
+    "description": "Acoustic App @asclearasmud",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "acoustic app"
+    ],
+    "support": {
+        "docs": "https://github.com/ournameismud/acoustic-app/blob/master/README.md",
+        "issues": "https://github.com/ournameismud/acoustic-app/issues"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "@asclearasmud",
+            "homepage": "http://ournameismud.co.uk/"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0-RC1"
+    },
+    "autoload": {
+        "psr-4": {
+          "ournameismud\\acousticapp\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Acoustic App",
+        "handle": "acoustic-app",
+        "hasCpSettings": true,
+        "hasCpSection": true,
+        "changelogUrl": "https://raw.githubusercontent.com/ournameismud/acoustic-app/master/CHANGELOG.md",
+        "components": {
+            "favourites": "ournameismud\\acousticapp\\services\\Favourites",
+            "tests": "ournameismud\\acousticapp\\services\\Tests",
+            "seals": "ournameismud\\acousticapp\\services\\Seals"
+        },
+        "class": "ournameismud\\acousticapp\\AcousticApp"
+    }
+}

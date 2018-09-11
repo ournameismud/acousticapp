@@ -1,0 +1,36 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Acoustic App plugin for Craft CMS 3.x
+ *
+ * Acoustic App index.twig
+ *
+ * @author    @asclearasmud
+ * @copyright Copyright (c) 2018 @asclearasmud
+ * @link      http://ournameismud.co.uk/
+ * @package   AcousticApp
+ * @since     1.0.0
+ */
+#}
+
+{# {% redirect url('acoustic-app/index') %} #}
+{% set title = 'Acoustic App: Favourites'|t %}
+{% do view.registerAssetBundle("ournameismud\\acousticapp\\assetbundles\\acousticapp\\AcousticAppAsset") %}
+{% extends 'acoustic-app/layout/_cp' %}
+{% set selectedTab = 'favourites' %}
+{% set selectedSubnavItem = 'favourites' %}
+
+{% set faves = craft.acousticApp.getFaves() %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+	{#  TO DO: formatting here #}
+	{% for fave in faves %}
+	<p>
+		{% set user = craft.users({ id: fave.userId})|first %}
+		<a href="{{ url('/admin/acoustic-app/tests/test/' ~ fave.testId) }}">Test {{ fave.testId }}</a> {{ user|length ? 'by ' ~ user.fullName }}
+
+	</p>
+	{% endfor %}
+{% endblock %}

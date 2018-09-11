@@ -1,0 +1,93 @@
+/**
+ * Acoustic App plugin for Craft CMS
+ *
+ * Favourites Field CSS
+ *
+ * @author    @asclearasmud
+ * @copyright Copyright (c) 2018 @asclearasmud
+ * @link      http://ournameismud.co.uk/
+ * @package   AcousticApp
+ * @since     1.0.0
+ */
+
+/*.test-wrapper dt, .test-wrapper dd {
+	padding: 4px 0;
+}
+.test-wrapper dt {
+	font-weight: bold;
+	float: left;
+	width: 50%;
+	clear: left;
+	border-top: 1px solid red;
+	border-bottom: none;
+	margin: 0;
+}
+.test-wrapper dd {
+	float: right;
+	width: 50%;
+	border-top: 1px solid red;
+	border-bottom: none;
+	margin: 0;
+}*/
+
+fieldset.fields-wrapper {
+	margin-top: 10px;
+	overflow: hidden;	
+}
+fieldset.fields-wrapper.shut {
+	max-height: 0;
+}
+fieldset.fields-wrapper.js {
+	/*display: none;	*/
+
+}
+
+.shut {
+	/*background: red !important;*/
+}
+.btn.toggler:after {
+	content: '-';
+	display: inline-block;
+	margin-left: 6px;
+}
+.btn.shut:after {
+	content: '+';
+}
+table.test-wrapper {
+	max-width: 800px;
+}
+table.test-wrapper tr:nth-child(odd) {
+	background: #EEE;
+}
+table.test-wrapper th, table.test-wrapper td {
+	vertical-align: top;
+	padding: 2px 8px;
+}
+table .sortable {
+	/*background: red;*/
+}
+table .sortable a:after {
+	content: '⬇';
+	display: inline-block;
+	margin-left: 4px;
+	font-weight: normal;
+}
+
+table .sortable.sortis-desc a:after {
+	content: '⬆';
+}
+
+.btn.fave  {
+	/*background: red;	*/
+}
+.btn.fave:before  {
+	content: '☆';
+	display: inline-block;
+	margin-right: 4px;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.btn.fave.active:before  {
+	content: '★';
+}

@@ -1,0 +1,8 @@
+{% extends '_layouts/cp.html' %}
+
+{% set tabs = {
+	'tests' : { url: url('acoustic-app/tests'), label: 'Tests'},
+	'seals' : { url: url('acoustic-app/seals'), label: 'Seals'},
+	'searches' : { url: url('acoustic-app/searches'), label: 'Searches'},
+	'favourites' : { url: url('acoustic-app/favourites'), label: 'Favourites'}
+} %}
