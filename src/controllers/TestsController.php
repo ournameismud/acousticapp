@@ -66,8 +66,10 @@ class TestsController extends Controller
         if (\Craft::$app->getRequest()->getAcceptsJson()) {
             return $this->asJson($tests);
         } else {
-            Craft::dd( $tests );
-            return $this->asJson([]);
+            // define this in form itself
+            $redir = 'app';
+            return $this->renderTemplate($redir, ['results'=>$tests]);
+            // return $this->asJson($tests);
         }
     }
 

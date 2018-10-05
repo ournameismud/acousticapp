@@ -46,7 +46,7 @@ class Tests extends Component
     //      Tests
     // Returns: Tests query results (array)
 
-    public function getTests( $criteria = null, $sort ) {
+    public function getTests( $criteria = null, $sort = 'asc' ) {
         $request = Craft::$app->getRequest();
         if ( isset($criteria) && is_int($criteria) ) {
             $records = TestRecord::find()

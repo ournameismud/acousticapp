@@ -34,14 +34,15 @@ class AcousticAppVariable
     // Optional: $criteria, %$append
     // Returns: array of values
     
-    public function getVars( $criteria, $append = true ) {
+    public function getVars( $criteria, $append = '---' ) {
         $results = (new Query())
             ->select($criteria)
             ->distinct( true )
             ->from(['{{%acousticapp_tests}}'])
+            ->orderBy( $criteria )
             ->all();
         $tmp = [];
-        if ($append) $tmp[''] = '---';
+        if ($append) $tmp[''] = $append;
         foreach( $results AS $result ) {
             $tmp[$result[ $criteria ]] = $result[ $criteria ];
         }    
