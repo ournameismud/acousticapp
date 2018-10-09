@@ -38,6 +38,23 @@ class Tests extends Component
         $user = Craft::$app->getUser();
     } 
 
+
+    public function getTestsBySeals( $id ) {
+        // Craft::dd( $id );
+        $testIds = [];
+        $tests = TestsSealsRecord::find()
+            ->where( ['sealId' => $id ] )->all();
+        foreach ($tests as $test) {
+            $testIds[] = $test->testId;
+        }
+        $testIds = array_unique($testIds);
+        // $records = 
+        $records = $this->getTests(['id'=>$testIds]);
+        return $records;
+    }
+    
+
+
     // Name: getTests
     // Purpose: service to fetch tests based on defined criteria
     // Required: none
@@ -48,7 +65,7 @@ class Tests extends Component
 
     public function getTests( $criteria = null, $sort = 'asc' ) {
         $request = Craft::$app->getRequest();
-        if ( isset($criteria) && is_int($criteria) ) {
+        if ( isset($criteria) && is_numeric($criteria) ) {
             $records = TestRecord::find()
                 ->where( ['id' => $criteria ] );
         } elseif ( isset($criteria) ) {
@@ -83,7 +100,7 @@ class Tests extends Component
         } else {
             $records = TestRecord::find();
         }
-        if ( isset($criteria) && is_int($criteria) ) return $records->one();
+        if ( isset($criteria) && is_numeric($criteria) ) return $records->one();
         else {            
             return $records->orderBy('dB ' . strtoupper($sort))->all();
         }

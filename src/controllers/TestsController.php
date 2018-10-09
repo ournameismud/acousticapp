@@ -11,6 +11,8 @@
 namespace ournameismud\acousticapp\controllers;
 
 use ournameismud\acousticapp\AcousticApp;
+use ournameismud\acousticapp\records\Seals AS SealRecord;
+use ournameismud\acousticapp\records\TestsSeals AS TestsSealsRecord;
 
 use Craft;
 use craft\web\Controller;
@@ -49,6 +51,24 @@ class TestsController extends Controller
     {
         $this->requirePostRequest();
         $request = Craft::$app->getRequest();
+        $product = $request->getBodyParam('product');
+        $testId = $request->getBodyParam('id');
+        // define this in form itself
+        $redir = 'acousticsearch/results';
+        
+        if ($testId) {
+            $tests = AcousticApp::getInstance()->tests->getTests( $testId );
+            // Craft::dd( $tests );
+            return $this->renderTemplate($redir, ['results'=>[$tests]]);
+        } elseif ($product) {
+            // abstract to service here?
+            $seals = SealRecord::find()->where([ 
+                'craftId' => $product
+            ])->column();
+            $tests = AcousticApp::getInstance()->tests->getTestsBySeals( $seals );
+            return $this->renderTemplate($redir, ['results'=>$tests]);
+        }
+
         $fields = [
             'fireRating',
             'db_Min',
@@ -66,8 +86,6 @@ class TestsController extends Controller
         if (\Craft::$app->getRequest()->getAcceptsJson()) {
             return $this->asJson($tests);
         } else {
-            // define this in form itself
-            $redir = 'app';
             return $this->renderTemplate($redir, ['results'=>$tests]);
             // return $this->asJson($tests);
         }
