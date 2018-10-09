@@ -58,6 +58,7 @@ class Seals extends Component
             if (!array_key_exists($context, $seals)) $seals[$context] = [];
             $seal = SealRecord::find()->where( ['id' => $TestsSeal->sealId] )->one();
             $seals[$context] = array(
+                'id' => $seal->craftId,
                 'name' => $seal->sealCode,
                 'value' => $TestsSeal->quantity
             );
