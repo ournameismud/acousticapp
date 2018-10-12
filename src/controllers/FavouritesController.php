@@ -53,6 +53,8 @@ class FavouritesController extends Controller
         $request = Craft::$app->getRequest();
         $favourite = AcousticApp::getInstance()->favourites->processFavourite( [ 'userId' => $user->id, 'testId' => $request->getBodyParam( 'testId' ), 'siteId' => $site->id] );
 
+        $testId = $request->getBodyParam( 'testId' );
+        $favourite = AcousticApp::getInstance()->favourites->processFavourite( [ 'userId' => $user->id, 'testId' => $testId, 'siteId' => $site->id] );
         if ($request->getAcceptsJson()) {
             return $this->asJson(['response' => $favourite]);
         } else {

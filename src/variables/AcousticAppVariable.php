@@ -86,10 +86,14 @@ class AcousticAppVariable
     //      favourites/getFavourites
     // Returns: Favourites records 
     
-    public function getFaves( $user = null ) {        
+    public function getFaves( $user = null, $format = null) {        
         $user = isset($user) ? (int) $user : $user;
         $results = AcousticApp::getInstance()->favourites->getFavourites( $user );
-        return $results;
+        if ($format == 'array')  {
+            $ids = [];
+            foreach($results AS $result) $ids[] = $result->testId;
+            return $ids;
+        } else return $results;
     }
     
 
