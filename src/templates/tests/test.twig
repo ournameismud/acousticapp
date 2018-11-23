@@ -41,8 +41,10 @@
 		<tr>
 			<th>{{ context }}</th>
 			<td>
-		{% for code, quantity in seals %}
-			{{ code }} {{ quantity > 1 ? 'x' ~ quantity }}{{ loop.last == null ? '<br />' }}			
+		{% for seal in seals %}
+			{% for code, quantity in seal %}
+				{{ code }} {{ quantity > 1 ? 'x' ~ quantity }}{{ loop.last == null ? '<br />' }}							
+			{% endfor %}
 		{% endfor %}
 		</td>
 	</tr>

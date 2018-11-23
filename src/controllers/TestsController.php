@@ -54,8 +54,8 @@ class TestsController extends Controller
         $product = $request->getBodyParam('product');
         $testId = $request->getBodyParam('id');
         // define this in form itself
-        $redir = 'acousticsearch/results';
-        
+        $redir = $request->getBodyParam('redirect');
+        $redir = empty($redir) ? 'acousticsearch/results' : $redir;
         if ($testId) {
             $tests = AcousticApp::getInstance()->tests->getTests( $testId );
             // Craft::dd( $tests );
@@ -71,8 +71,10 @@ class TestsController extends Controller
 
         $fields = [
             'fireRating',
-            'db_Min',
-            'db_Max',
+            'dB_min',
+            'dB_max',
+            'doorset',
+            'glassType',
             'manufacturer',
             'doorThickness_min',
             'doorThickness_max',
@@ -82,11 +84,10 @@ class TestsController extends Controller
             $criteria[ $field ] = $request->getBodyParam( $field );
         }
         $tests = AcousticApp::getInstance()->tests->getTests( $criteria );
-
         if (\Craft::$app->getRequest()->getAcceptsJson()) {
             return $this->asJson($tests);
         } else {
-            return $this->renderTemplate($redir, ['results'=>$tests]);
+            return $this->renderTemplate($redir, ['results'=>$tests, 'criteria'=> $criteria]);
             // return $this->asJson($tests);
         }
     }
