@@ -65,9 +65,10 @@ class Tests extends Component
 
     public function getTests( $criteria = null, $sort = 'asc' ) {
         $request = Craft::$app->getRequest();
+        
         if ( isset($criteria) && is_numeric($criteria) ) {
             $records = TestRecord::find()
-                ->where( ['id' => $criteria ] );
+                ->where( ['lorientId' => $criteria ] );
         } elseif ( isset($criteria) ) {
             $crits = [];
             $paras = [];

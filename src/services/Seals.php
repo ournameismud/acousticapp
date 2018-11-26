@@ -65,4 +65,16 @@ class Seals extends Component
         }
         return $seals;
     }
+
+    public function getProdIds()
+    {
+        $TestsSeals = SealRecord::find()->all();
+        $prodIds = [];
+        foreach ($TestsSeals AS $TestsSeal) {
+            $prodIds[] = $TestsSeal->craftId;
+        }
+        return array_unique($prodIds);
+    }
+
+    
 }

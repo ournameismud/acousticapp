@@ -109,5 +109,10 @@ class AcousticAppVariable
         $testSeals = AcousticApp::getInstance()->seals->getSealsByTest( $testId );
         return $testSeals;
     }
+
+    public function getProdIds() {        
+        $testSeals = AcousticApp::getInstance()->seals->getProdIds();
+        return $testSeals;
+    }
     
 }
