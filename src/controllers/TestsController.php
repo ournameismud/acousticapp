@@ -11,6 +11,7 @@
 namespace ournameismud\acousticapp\controllers;
 
 use ournameismud\acousticapp\AcousticApp;
+use ournameismud\acousticapp\records\Tests AS TestRecord;
 use ournameismud\acousticapp\records\Seals AS SealRecord;
 use ournameismud\acousticapp\records\TestsSeals AS TestsSealsRecord;
 
@@ -147,5 +148,32 @@ class TestsController extends Controller
         // check if CSV here
         $result = AcousticApp::getInstance()->tests->processUpload( $file );
         return $result;
+    }
+
+    public function actionSaveTest()
+    {
+        $this->requirePostRequest();        
+        $request = Craft::$app->getRequest();
+        $testId = $request->getBodyParam('testId');
+        $report = $request->getBodyParam('report')[0];
+        // $file = UploadedFile::getInstanceByName('testsFile');
+        // update record
+        // 
+        // 
+        $testRecord = TestRecord::find()->where([ 
+            'id' => $testId
+        ])->one();
+        $testRecord->report = $report;
+        $testRecord->save();
+        Craft::dd($testRecord);
+        if (!$seals) {
+            $seals = new SealRecord;
+            $seals->siteId = $site->id;
+            $seals->sealCode = trim($sealCode);
+            $seals->save();
+            // return $seals->id;
+        } 
+        Craft::dd($report);
+        Craft::dd($testId);
     }
 }

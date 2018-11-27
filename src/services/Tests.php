@@ -68,7 +68,7 @@ class Tests extends Component
         
         if ( isset($criteria) && is_numeric($criteria) ) {
             $records = TestRecord::find()
-                ->where( ['lorientId' => $criteria ] );
+                ->where( ['id' => $criteria ] );
         } elseif ( isset($criteria) ) {
             $crits = [];
             $paras = [];
@@ -101,8 +101,9 @@ class Tests extends Component
         } else {
             $records = TestRecord::find();
         }
-        if ( isset($criteria) && is_numeric($criteria) ) return $records->one();
-        else {            
+        if ( isset($criteria) && is_numeric($criteria) ) {
+            return $records->one();
+        } else {            
             return $records->orderBy('dB ' . strtoupper($sort))->all();
         }
     }

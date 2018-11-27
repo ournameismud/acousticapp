@@ -51,6 +51,7 @@ class Tests extends Model
             ['glassType', 'string'],
             ['lorientId', 'number'],
             ['testDate', DateTimeValidator::class],
+            ['report','number']
         ];
     }
 }

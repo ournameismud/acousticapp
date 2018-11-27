@@ -2,10 +2,8 @@
 {% do view.registerAssetBundle("ournameismud\\acousticapp\\assetbundles\\acousticapp\\AcousticAppAsset") %}
 {% extends 'acoustic-app/layout/_cp' %}
 {% set selectedTab = 'tests' %}
-
-
 {% set selectedSubnavItem = 'bar' %}
-
+{% import "_includes/forms" as forms %}
 {% block content %}
 		
 	<h1>Test {{ testRecord.lorientId }}: {{ testRecord.testDate|date('jS F Y') }}</h1>
@@ -21,7 +19,7 @@
 		fireRating: 'Acoustic Rating',
 
 	} %}
-
+	
 	<table class="data fullwidth test-wrapper">
 	{% for key, value in rows %}
 		<tr>
@@ -37,18 +35,38 @@
 		</td>
 	</tr>
 	{% endfor %}
+
 	{% for context, seals in testSeals %}
 		<tr>
 			<th>{{ context }}</th>
 			<td>
-		{% for seal in seals %}
-			{% for code, quantity in seal %}
-				{{ code }} {{ quantity > 1 ? 'x' ~ quantity }}{{ loop.last == null ? '<br />' }}							
+			{% for seal in seals %}
+				{{ seal.name }} {{ seal.quantity > 1 ? 'x' ~ seal.quantity }}
+				[<a href="{{ url('entries/products/' ~ seal.id) }}" target="_blank">Link</a>]
+				{{ loop.last == null ? '<br />' }}		
 			{% endfor %}
-		{% endfor %}
 		</td>
 	</tr>
 	{% endfor %}
 	</table>
+	{% set action = actionUrl('acoustic-app/tests/save-test') %}
+	<form method="post" action="{{ action }}">
+		<input type="hidden" name="testId" value="{{ testId }}" />
+		{{ csrfInput() }}
+		{% set reportAsset = testRecord.report|length ? craft.assets({ id: testRecord.report })[0] : null %}
+		{{ forms.elementSelectField({
+		    label: 'Report file',
+		    id: 'report',
+		    elementType: 'craft\\elements\\Asset',
+		    limit: 1,
+		    elements: reportAsset ? [reportAsset] : null,
+		    name: 'report' })
+		}}
+		{# 
+			TO DO:
+			need to check where else getTest is being used and distinction between id and lorientId
+		 #}
+		<button type="submit" class="btn submit">Save</button>
+	</form>
 	
 {% endblock %}
