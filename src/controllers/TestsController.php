@@ -112,6 +112,12 @@ class TestsController extends Controller
             $redir .= '?' . $this->buildPars($criteria);
         }
         
+
+        if ($request->getAcceptsJson()) {
+            // get results
+            $results = AcousticApp::getInstance()->tests->getTests( $criteria );
+            return $this->asJson($results);
+        } 
         // Craft::dd($redir);
         // TO DO: store save query here ??
         return $this->redirect($redir);
