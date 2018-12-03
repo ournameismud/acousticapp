@@ -58,7 +58,7 @@ class AcousticApp extends Plugin
     /**
      * @var string
      */
-    public $schemaVersion = '1.0.6.4';
+    public $schemaVersion = '1.0.6.5';
     public $cols = array(
         'Date of test' => 'test_testDate',
         'Acoustic Rating' => 'test_dB',

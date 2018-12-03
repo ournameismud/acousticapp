@@ -48,49 +48,73 @@ class TestsController extends Controller
     // Services: 
     //      tests/getTests
     
+    private function buildPars( array $vars) {
+        $url = '';
+        foreach ($vars AS $key => $value) {
+            if (is_array($value)) {
+                $tmp = [];
+                foreach ($value AS $arrayValue) {
+                    $tmp[] = $key . '[]=' . $arrayValue;                    
+                }
+                $tmp = implode('&',$tmp);
+            }
+            else $tmp = $key . '=' . $value;
+            $url .= '&' . $tmp;
+        }
+        return substr($url,1);
+    }
     public function actionFetchTests()
     {
-        $this->requirePostRequest();
+        $urlVars = [];
         $request = Craft::$app->getRequest();
         $product = $request->getBodyParam('product');
         $testId = $request->getBodyParam('id');
+        $pp = $request->getBodyParam('pp');
         // define this in form itself
         $redir = $request->getBodyParam('redirect');
         $redir = empty($redir) ? 'acousticsearch/results' : $redir;
         if ($testId) {
             $tests = AcousticApp::getInstance()->tests->getTests( $testId );
-            // Craft::dd( $tests );
-            return $this->renderTemplate($redir, ['results'=>[$tests]]);
+            $urlVars['id'] = $testId;
+            if (isset($pp)) $urlVars['pp'] = $pp;
+            $redir .=  '?' . $this->buildPars($urlVars);
         } elseif ($product) {
             // abstract to service here?
             $seals = SealRecord::find()->where([ 
                 'craftId' => $product
-            ])->column();
-            $tests = AcousticApp::getInstance()->tests->getTestsBySeals( $seals );
-            return $this->renderTemplate($redir, ['results'=>$tests]);
-        }
-
-        $fields = [
-            'fireRating',
-            'dB_min',
-            'dB_max',
-            'doorset',
-            'glassType',
-            'manufacturer',
-            'doorThickness_min',
-            'doorThickness_max',
-        ];
-        $criteria = [];
-        foreach ($fields AS $field) {
-            $criteria[ $field ] = $request->getBodyParam( $field );
-        }
-        $tests = AcousticApp::getInstance()->tests->getTests( $criteria );
-        if (\Craft::$app->getRequest()->getAcceptsJson()) {
-            return $this->asJson($tests);
+            ])->column();            
+            $urlVars['product'] = $product;
+            if (isset($pp)) $urlVars['pp'] = $pp;
+            $redir .=  '?' . $this->buildPars($urlVars);
         } else {
-            return $this->renderTemplate($redir, ['results'=>$tests, 'criteria'=> $criteria]);
-            // return $this->asJson($tests);
+
+            $fields = [
+                'fireRating',
+                'dB_min',
+                'dB_max',
+                'doorset',
+                'glassType',
+                'manufacturer',
+                'doorThickness_min',
+                'doorThickness_max',
+            ];
+            $criteria = [];
+            foreach ($fields AS $field) {
+                $tmpVal = $request->getBodyParam( $field );            
+                // string helper here - if not null
+                if (is_array($tmpVal)) {
+                    $tmpArray = array_filter($tmpVal);
+                    if (count($tmpArray) > 0) $criteria[ $field ] = $tmpVal;
+                }
+                elseif(trim($tmpVal) != '') $criteria[ $field ] = $tmpVal;
+            }
+            if (isset($pp)) $criteria['pp'] = $pp;
+            $redir .= '?' . $this->buildPars($criteria);
         }
+        
+        // Craft::dd($redir);
+        // TO DO: store save query here ??
+        return $this->redirect($redir);
     }
 
     // Name: hash

@@ -69,6 +69,22 @@ class Tests extends Component
         if ( isset($criteria) && is_numeric($criteria) ) {
             $records = TestRecord::find()
                 ->where( ['id' => $criteria ] );
+        } elseif ( is_array($criteria) && array_key_exists('product',$criteria) ) {
+            $productId = $criteria['product'];
+            $seals = SealRecord::find()->where([ 
+                'craftId' => $productId
+            ])->column();
+            if (count($seals)) {
+                $sealIds = [];
+                $testSeals = TestsSealsRecord::find()->where(['sealId'=>$seals[0]])->all();
+                foreach($testSeals AS $testSeal) {
+                    $sealIds[] = $testSeal['testId'];
+                }
+                $records = TestRecord::find()->where(['in','id',$sealIds])->orderBy('dB ' . strtoupper($sort));                
+            } else {
+                $redir = 'null!!';
+            }            
+            
         } elseif ( isset($criteria) ) {
             $crits = [];
             $paras = [];
