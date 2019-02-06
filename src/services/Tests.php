@@ -65,11 +65,10 @@ class Tests extends Component
 
     public function getTests( $criteria = null, $sort = 'asc' ) {
         $request = Craft::$app->getRequest();
-        
         if ( isset($criteria) && is_numeric($criteria) ) {
             $records = TestRecord::find()
                 ->where( ['id' => $criteria ] );
-        } elseif ( is_array($criteria) && array_key_exists('product',$criteria) ) {
+        } elseif ( isset($criteria) && is_array($criteria) && array_key_exists('product',$criteria) ) {
             $productId = $criteria['product'];
             $seals = SealRecord::find()->where([ 
                 'craftId' => $productId
@@ -85,7 +84,7 @@ class Tests extends Component
                 $redir = 'null!!';
             }            
             
-        } elseif ( isset($criteria) ) {
+        } elseif ( isset($criteria) && is_array($criteria)) {
             $crits = [];
             $paras = [];
             $i = 0;
