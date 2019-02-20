@@ -38,7 +38,15 @@ class Tests extends Component
         $user = Craft::$app->getUser();
     } 
 
-
+    protected function arrayFind($array, $field, $value)
+    {
+       foreach($array as $key => $item)
+       {
+          if ( $item[$field] === $value )
+             return $key;
+       }
+       return false;
+    }
     public function getTestsBySeals( $id ) {
         // Craft::dd( $id );
         $testIds = [];
@@ -140,8 +148,19 @@ class Tests extends Component
             $seals = new SealRecord;
             $seals->siteId = $site->id;
             $seals->sealCode = trim($sealCode);
+            // check tags here
+            $tags = \craft\elements\Tag::find()
+                ->group('productCodes')
+                ->title( $sealCode )
+               ->all();
+            if (count($tags) > 0) {
+                $product = \craft\elements\Entry::find()
+                    ->section('products')
+                    ->relatedTo( $tags )
+                   ->one();
+                if (count($product)) $seals->craftId = $product->id;
+            }   
             $seals->save();
-            // return $seals->id;
         } 
         return $seals->id;
 
@@ -152,29 +171,173 @@ class Tests extends Component
     // Required: string $seals
     // Optional: none
     // Returns: array
-    
-    public function processSeals( string $seals )
+    public function processSeals( array $tmpSeals, int $testRecordId )
     {
-        if (strlen(trim($seals)) == false) return array();
-        $response = [];
-        $seals = explode('&',$seals);
-        $sealsCount = count($seals);
-        foreach ($seals AS $seal) {
-            $seal = trim($seal);
-            $matches = preg_split("/2 x/i", $seal);
-            $code = array_filter($matches);
-            $code = array_values($code);
-            if( count($matches) > 1) {
-                if (array_key_exists($code[0], $response)) $response[trim($code[0])] += 2;
-                else $response[trim($code[0])] = 2;
-            } else {
-                if (array_key_exists($seal, $response)) $response[$seal] += 1;
-                else $response[$seal] = 1;
+        $site = Craft::$app->getSites()->getCurrentSite();
+        $sealsCount = 0;        
+        foreach ($tmpSeals AS $key => $value) {
+            // clear testSeals with testId == $testRecordId && context == $key
+            $testSeals = TestsSealsRecord::find()->where([ 
+                'siteId' => $site->id,
+                'testId' => $testRecordId,
+                'context' => $key
+            ])->all();
+            // explode on delimiter (, or &)
+            $seals = explode('&',$value);
+            $sealIds = [];
+            foreach ($seals AS $seal) {
+                $seal = trim($seal);
+                if (strpos(strtoupper($seal),'2 X') !== false) {
+                    $multiplier = explode('2 X',strtoupper($seal));
+                    $q = 2;
+                    $seal = trim($multiplier[1]);
+                } else {
+                    $q = 1;
+                    $seal = trim($seal);
+                }
+                $sealId = $this->checkSeal($seal);
+                $testSeal = TestsSealsRecord::find()->where([ 
+                    'siteId' => $site->id,
+                    'testId' => $testRecordId,
+                    'sealId' => $sealId,
+                    'context' => $key
+                ])->one();
+                // if doesn't exist create 
+                if (!$testSeal) {
+                    $testSeal = new TestsSealsRecord;
+                } 
+                $testSeal->siteId = $site->id;
+                $testSeal->testId = $testRecordId;
+                $testSeal->sealId = $sealId;
+                $testSeal->context = $key;
+                $testSeal->quantity = $q;
+                $testSeal->save();
+                $sealsCount++;
             }
         }
-        return $response;
+        return $sealsCount;
+        // Craft::dd($tmpSeals);
+        // if (strlen(trim($seals)) == false) return array();
+        // $response = [];
+        // $seals = explode('&',$seals);
+        // $sealsCount = count($seals);
+        // foreach ($seals AS $seal) {
+        //     $seal = trim($seal);
+        //     $matches = preg_split("/2 x/i", $seal);
+        //     $code = array_filter($matches);
+        //     $code = array_values($code);
+        //     if( count($matches) > 1) {
+        //         if (array_key_exists($code[0], $response)) $response[trim($code[0])] += 2;
+        //         else $response[trim($code[0])] = 2;
+        //     } else {
+        //         if (array_key_exists($seal, $response)) $response[$seal] += 1;
+        //         else $response[$seal] = 1;
+        //     }
+        // }
+        // return $response;
     }
     
+
+    // Name: processRows
+    // Purpose: service to process rows from CSV
+    // Required: 
+    //      int $cols
+    //      array $ref
+    //      array $data
+    // Optional: none
+    
+         
+    public function processRows( int $cols, $refs, $data )
+    {
+        $site = Craft::$app->getSites()->getCurrentSite();
+        
+        $webRefIndex = $this->arrayFind($refs,'lable','test_lorientId');
+        $webRef = $refs[$webRefIndex];
+        // loop through data row
+        foreach($data AS $row) {
+            // get cols from data
+            $col = explode(',',$row);
+            $items = str_getcsv($row);
+            if (count($items) <> $cols) {
+                // log error here
+                Craft::dd($items);                
+            } else {
+                $lorientIdIndex = $webRef['index'];
+                $lorientId = $items[$lorientIdIndex];
+
+                // check test against record
+                // get id
+                $testRecord = TestRecord::find()->where([ 
+                    'lorientId' => $lorientId
+                ])->one();
+                
+                // see if text already exists, if not define new one            
+                if (!$testRecord) $testRecord = new TestRecord;
+
+
+
+                // Craft::dd($test);
+
+
+                // loop through reference items
+                echo '<hr />';
+                $tmpSeals = [];
+                foreach ($refs AS $ref) {
+                    // if lable == 'seal_sealCode'
+                    // explode by comma or ampersand
+                    // loop through all items
+                    // pass to service (sealRecord)
+                    //      if new create
+                    //      else get record id
+                    // build out testRecord
+                    // build arrays ready to pass to testsSealsRecord
+
+                    $title = $ref['key'];
+                    $handle = $ref['lable'];
+                    $data = trim($items[$ref['index']]);
+                    if (strpos($handle,'seal_') !== false && $data != '') {
+                        $tmpSeals[$title] = $data;
+                    } elseif (strpos($handle,'test_') !== false && $data != '') {
+                        $property = substr($handle,5);
+                        if ($property == 'testDate') {
+                            $tmpDate = \DateTime::createFromFormat('d.m.y',$data);
+                            if ($tmpDate) $testRecord->$property = $tmpDate->format('Y-m-d H:i:s');
+                        } elseif ($property == 'dB') {
+                            preg_match('/\d+/',$data,$matches);
+                            $testRecord->$property = $matches[0];                                
+                        } elseif ($property == 'doorThickness') {
+                            preg_match('/\d+/',$data,$matches);
+                            $testRecord->$property = $matches[0];
+                        } else {
+                            $testRecord->$property = $data;
+                        }                        
+                    }
+                    
+                    echo $ref['key'] . ': (';
+                    echo $ref['lable'] . ') ';
+                    echo $items[$ref['index']];
+                    echo '<br />';
+                    // Craft::dd($items);
+                    // testModel
+                    // sealModel
+                    // sealModel
+                    // Craft::dd($ref);
+                }
+                $testRecord->siteId = $site->id;
+                $testRecord->save();
+                // pass to seals service
+                //      $testRecord->id
+                //      $tmpSeals
+                // Craft::dd( $tmpSeals);
+                $seals = $this->processSeals($tmpSeals, $testRecord->id);
+                print_r($tmpSeals);
+                echo '<hr />';
+                
+            }
+        }
+        Craft::dd('----');
+    }
+
     // Name: processUpload
     // Purpose: service to process CSV file upload
     // Required: file $file
@@ -187,7 +350,7 @@ class Tests extends Component
     //      checkSeal
     // Returns: TO DO
          
-    public function processUpload( $file )
+    public function processUpload( $file, $step = null )
     {
         // https://stackoverflow.com/questions/23904850/read-csv-in-yii-framework
         $site = Craft::$app->getSites()->getCurrentSite();
@@ -195,7 +358,20 @@ class Tests extends Component
         // open file
         $fileHandler = fopen($file->tempName,'r');        
         $csv = file($file->tempName);
+        $srcCols = AcousticApp::getInstance()->cols;
+
+        $cols = [];
+        foreach ($srcCols AS $key=> $value) {
+            $cols[] = $key;
+        }
+        $data = array(
+            'data' => json_encode($csv),
+            'header' => str_getcsv(array_shift( $csv )),
+            'cols' => $cols
+        );
         
+        return $data;
+        /*()
         // define index columns
         $indexes = str_getcsv(array_shift( $csv ));
         $lorientId = array_search('Web Ref',$indexes);    
@@ -206,6 +382,50 @@ class Tests extends Component
         $cols = AcousticApp::getInstance()->cols;
         $count = 0;
         
+        $tmp = [];
+        foreach ($csv AS $item) {
+            $row = str_getcsv($item);            
+            foreach (range(11, 15) as $number) {
+                $tmp[] = $row[$number];
+            }
+            
+        }
+        $tmp = array_unique($tmp);
+        $codes = [];
+        echo '<pre>';
+        foreach ($tmp AS $code) {
+            $codeTmp = str_replace(',',' & ',$code);
+            $codeArr = explode('&',$codeTmp);
+            foreach ($codeArr AS $codeStr) {
+                $codeStr = trim($codeStr);
+                $splitMultiplier = explode('2 X', strtoupper($codeStr));                
+                foreach ($splitMultiplier AS $splitCode) {
+                    $codes[] = trim($splitCode);
+                }
+                // echo $codeStr;
+            }
+            // print_r($codeTmp);
+        }
+        $codes = array_unique($codes);
+        sort($codes);
+        
+        $prods = [];
+        foreach ($codes AS $code) {
+            $tags = \craft\elements\Tag::find()
+                ->group('productCodes')
+                ->title( $code )
+               ->all();
+            if (count($tags) == 1) {
+                $tmpEntry = $tags[0];
+                $prods[$code] = $tmpEntry->id;  
+            } elseif (count($tags) > 1) {
+                $prods[$code] = 'MULTIPLE MATCHES';  
+            } else {
+                $prods[$code] = 'NO MATCH';  
+            }
+            echo $code . ': ' . count($tags) . '<br />';
+        }
+        Craft::dd($prods);
         // echo '<pre>';
         // loop through CSV lines
         foreach ($csv AS $key => $row) {
@@ -282,6 +502,7 @@ class Tests extends Component
                 }
             }
             // echo $count;
-        }        
+        }  
+        */      
     }
 }

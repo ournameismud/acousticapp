@@ -1,0 +1,41 @@
+{% set title = 'Acoustic App: Upload Tests'|t %}
+
+{% import "_includes/forms" as forms %}
+{% extends 'acoustic-app/layout/_cp' %}
+
+
+{% block content %}
+	
+	<form class="uk-form" enctype="multipart/form-data" method="POST">
+		{# {% set data = craft.app.request.getBodyParam('data') %}
+		{% set test = craft.app.request.getBodyParam('test') %} #}
+		{% if data is defined %}
+			{% set cols = {'':'===='}|merge(data.cols) %}
+			{% for row in data.header %}
+				{{ forms.selectField({
+				    label: row,
+				    options: cols,
+				    id:  'col_' ~ loop.index0,
+				    name:  'col_' ~ loop.index0 })
+				}}	
+			{% endfor %}
+			<input type="hidden" name="step" value="1" />
+			<input type="hidden" name="cols" value="{{ data.header|length }}" />
+			<input type="hidden" name="data" value="{{ data.data }}" />
+		{% else %}
+			{{ forms.fileField({
+			    label: 'Tests file',
+			    instructions: 'CSV file',
+			    id: 'testsFile',
+			    name: 'testsFile' })
+			}}
+		{% endif %}
+
+		{{ csrfInput() }}
+	    <input type="hidden" name="action" value="acoustic-app/tests/upload-tests" />
+	    <div class="buttons">
+	        <button type="submit" class="btn submit add icon">{{ "Upload!"|t }}</bnutton>
+	    </div>
+	</form>
+
+{% endblock %}

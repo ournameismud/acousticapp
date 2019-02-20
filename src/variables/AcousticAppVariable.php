@@ -34,7 +34,7 @@ class AcousticAppVariable
     // Optional: $criteria, %$append
     // Returns: array of values
     
-    public function getVars( $criteria, $append = '---' ) {
+    public function getVars( $criteria, $append = '---', $sort = null) {
         $results = (new Query())
             ->select($criteria)
             ->distinct( true )

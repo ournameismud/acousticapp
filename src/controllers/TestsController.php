@@ -174,10 +174,56 @@ class TestsController extends Controller
         $this->requirePostRequest();        
         $result = 'Welcome to the TestsController actionDoSomething() method';
         $request = Craft::$app->getRequest();
-        $file = UploadedFile::getInstanceByName('testsFile');
-        // check if CSV here
-        $result = AcousticApp::getInstance()->tests->processUpload( $file );
-        return $result;
+        $step = $request->getBodyParam('step');
+        $srcCols = AcousticApp::getInstance()->cols;
+        if ($step) {
+            // Craft::dd($srcCols);
+            $cols = $request->getBodyParam('cols');
+            $data = $request->getBodyParam('data');
+            $data = json_decode($data);
+            $refs = [];
+            for($i = 0; $i <= $cols; $i++) {
+                $tmpData = $request->getBodyParam('col_' . $i);
+                if ($tmpData != '') {
+                    $tmpArr = [];
+                    $item = array_slice($srcCols,$tmpData,1);                    
+                    $tmpArr['index'] = $i;
+                    $tmpArr['value'] = $tmpData;
+                    $tmpArr['key'] = key($item);
+                    $tmpArr['lable'] = current($item);                
+                    $refs[] = $tmpArr;
+                }                
+            }    
+            $rows = count(explode(',',$data[0]));
+            array_shift($data);
+            // service here to pass 
+            //      cols
+            //      ref
+            //      data
+            $data = AcousticApp::getInstance()->tests->processRows( $cols, $refs, $data );     
+            foreach($data AS $key => $row) {
+                $cells = explode(',',$row);
+                if ($rows == count($cells)) {
+                    echo $key . ': ' .count($cells) . '<br />';
+                } else {
+                    // NEED TO LOG ERROR HERE
+                    // echo 'NOT ENOUGH ROWS';
+                }
+            }
+            Craft::dd($data);
+        } else {
+            $file = UploadedFile::getInstanceByName('testsFile');
+            // check if CSV here
+            $data = AcousticApp::getInstance()->tests->processUpload( $file );
+            // Craft::$app->urlManager()->setRouteVariables(array('data'=>$favourite));
+            // return $this->redirectToPostedUrl((object)array('data'=>$data,'test'=>'this has worked'),'acoustic-app/upload/index');
+            return $this->renderTemplate('acoustic-app/upload/index', array('data'=>$data));
+            // Craft::$app->getSession()->setNotice($data);
+                        // $redirect = $request->getBodyParam('redirect');
+            // return $this->redirectToPostedUrl();
+            // return $result;    
+        }
+        
     }
 
     public function actionSaveTest()
