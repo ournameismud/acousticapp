@@ -288,6 +288,9 @@ class Tests extends Component
             // get cols from data
             $col = explode(',',$row);
             $items = str_getcsv($row);
+            $tmp = array_filter($items);
+            if (count($tmp) == 0) continue;            
+            
             if (count($items) <> $cols) {
                 // log error here
                 Craft::dd($items);                
