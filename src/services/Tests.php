@@ -204,7 +204,8 @@ class Tests extends Component
                 'context' => $key
             ])->all();
             // explode on delimiter (, or &)
-            $seals = explode('&',$value);
+            // $seals = explode('&',$value);
+            $seals = explode(',',$value);
             $sealIds = [];
             foreach ($seals AS $seal) {
                 $seal = trim($seal);
