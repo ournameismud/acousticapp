@@ -196,21 +196,13 @@ class TestsController extends Controller
             }    
             $rows = count(explode(',',$data[0]));
             array_shift($data);
-            // service here to pass 
-            //      cols
-            //      ref
-            //      data
-            $data = AcousticApp::getInstance()->tests->processRows( $cols, $refs, $data );     
-            foreach($data AS $key => $row) {
-                $cells = explode(',',$row);
-                if ($rows == count($cells)) {
-                    echo $key . ': ' .count($cells) . '<br />';
-                } else {
-                    // NEED TO LOG ERROR HERE
-                    // echo 'NOT ENOUGH ROWS';
-                }
-            }
-            Craft::dd($data);
+            $data = AcousticApp::getInstance()->tests->processRows( $cols, $refs, $data );
+            return $this->renderTemplate('acoustic-app/upload/index', array('data'=>$data)); 
+            echo '<pre>';
+            print_r($data);
+            echo '</pre>';
+            Craft::dd('====');
+            // Craft::dd($data);
         } else {
             $file = UploadedFile::getInstanceByName('testsFile');
             // check if CSV here

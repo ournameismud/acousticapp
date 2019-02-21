@@ -158,10 +158,30 @@ class Tests extends Component
                     ->section('products')
                     ->relatedTo( $tags )
                    ->one();
-                if (count($product)) $seals->craftId = $product->id;
-            }   
+                if (count($product)) {
+                    $seals->craftId = $product->id;
+                } 
+            } 
             $seals->save();
-        } 
+        } else {
+            // attempt to upgrade craft id if null
+            if ($seals->craftId == '') {
+                $tags = \craft\elements\Tag::find()
+                    ->group('productCodes')
+                    ->title( $sealCode )
+                   ->all();
+                if (count($tags) > 0) {
+                    $product = \craft\elements\Entry::find()
+                        ->section('products')
+                        ->relatedTo( $tags )
+                       ->one();
+                    if (count($product)) {
+                        $seals->craftId = $product->id;
+                    } 
+                } 
+                $seals->save();   
+            }
+        }
         return $seals->id;
 
     }    
@@ -175,6 +195,7 @@ class Tests extends Component
     {
         $site = Craft::$app->getSites()->getCurrentSite();
         $sealsCount = 0;        
+        $failCodes = [];
         foreach ($tmpSeals AS $key => $value) {
             // clear testSeals with testId == $testRecordId && context == $key
             $testSeals = TestsSealsRecord::find()->where([ 
@@ -196,6 +217,12 @@ class Tests extends Component
                     $seal = trim($seal);
                 }
                 $sealId = $this->checkSeal($seal);
+
+                $tags = \craft\elements\Tag::find()
+                    ->group('productCodes')
+                    ->title( $seal )
+                    ->all();
+                if (count($tags) == 0) $failCodes[] = $seal;
                 $testSeal = TestsSealsRecord::find()->where([ 
                     'siteId' => $site->id,
                     'testId' => $testRecordId,
@@ -215,7 +242,7 @@ class Tests extends Component
                 $sealsCount++;
             }
         }
-        return $sealsCount;
+        return array('success'=>$sealsCount,'fail'=>array_unique($failCodes));
         // Craft::dd($tmpSeals);
         // if (strlen(trim($seals)) == false) return array();
         // $response = [];
@@ -250,7 +277,9 @@ class Tests extends Component
     public function processRows( int $cols, $refs, $data )
     {
         $site = Craft::$app->getSites()->getCurrentSite();
-        
+        $seals = 0;
+        $tests = 0;
+        $fail = [];
         $webRefIndex = $this->arrayFind($refs,'lable','test_lorientId');
         $webRef = $refs[$webRefIndex];
         // loop through data row
@@ -274,13 +303,7 @@ class Tests extends Component
                 // see if text already exists, if not define new one            
                 if (!$testRecord) $testRecord = new TestRecord;
 
-
-
-                // Craft::dd($test);
-
-
                 // loop through reference items
-                echo '<hr />';
                 $tmpSeals = [];
                 foreach ($refs AS $ref) {
                     // if lable == 'seal_sealCode'
@@ -311,17 +334,7 @@ class Tests extends Component
                         } else {
                             $testRecord->$property = $data;
                         }                        
-                    }
-                    
-                    echo $ref['key'] . ': (';
-                    echo $ref['lable'] . ') ';
-                    echo $items[$ref['index']];
-                    echo '<br />';
-                    // Craft::dd($items);
-                    // testModel
-                    // sealModel
-                    // sealModel
-                    // Craft::dd($ref);
+                    }                                        
                 }
                 $testRecord->siteId = $site->id;
                 $testRecord->save();
@@ -329,13 +342,14 @@ class Tests extends Component
                 //      $testRecord->id
                 //      $tmpSeals
                 // Craft::dd( $tmpSeals);
-                $seals = $this->processSeals($tmpSeals, $testRecord->id);
-                print_r($tmpSeals);
-                echo '<hr />';
+                $data = $this->processSeals($tmpSeals, $testRecord->id);
+                $seals += $data['success'];
+                $tests++;
+                $fail = array_merge($fail, $data['fail']);
                 
             }
         }
-        Craft::dd('----');
+        return array('tests'=>$tests,'seals'=>$seals,'fail'=>array_unique($fail));     
     }
 
     // Name: processUpload

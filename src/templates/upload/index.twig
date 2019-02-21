@@ -2,14 +2,36 @@
 
 {% import "_includes/forms" as forms %}
 {% extends 'acoustic-app/layout/_cp' %}
-
+{% set selectedTab = 'upload' %}
 
 {% block content %}
-	
+	{% set form = true %}
 	<form class="uk-form" enctype="multipart/form-data" method="POST">
 		{# {% set data = craft.app.request.getBodyParam('data') %}
 		{% set test = craft.app.request.getBodyParam('test') %} #}
-		{% if data is defined %}
+		{% if data is defined and data.tests is defined %}
+		<p>Upload complete</p>
+		<table class="data fullwidth">
+			<tr>
+				<th>Tests processed: </th>
+				<td>{{ data.tests }}</td>
+			</tr>
+			<tr>
+				<th>Seals processed:</th>
+				<td>{{ data.seals }}</td>
+			</tr>
+		</table>
+		{% if data.fail|length %}
+		<p>We could not find matching products for the following codes:</p>
+		<table class="data fullwidth">
+		{% for item in data.fail %}
+			<tr><td>{{ item }}</td></tr>
+		{% endfor %}
+		</table>
+		{% endif %}
+		{% set form = null %}
+
+		{% elseif data is defined and data.cols is defined %}
 			{% set cols = {'':'===='}|merge(data.cols) %}
 			{% for row in data.header %}
 				{{ forms.selectField({
@@ -30,12 +52,13 @@
 			    name: 'testsFile' })
 			}}
 		{% endif %}
-
+		{% if form %}
 		{{ csrfInput() }}
 	    <input type="hidden" name="action" value="acoustic-app/tests/upload-tests" />
 	    <div class="buttons">
 	        <button type="submit" class="btn submit add icon">{{ "Upload!"|t }}</bnutton>
 	    </div>
+	    {% endif %}
 	</form>
 
 {% endblock %}
