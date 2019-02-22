@@ -37,7 +37,7 @@
 	<tbody>
 	{% for fave in faves %}
 	<tr>
-		{% set user = craft.users({ id: fave.userId})|first %}
+		{% set user = craft.users({ id: fave.userId}).one() %}
 		<td>
 			<a href="{{ url('/admin/acoustic-app/tests/test/' ~ fave.testId) }}">Test {{ fave.testId }}</a>
 		</td>
