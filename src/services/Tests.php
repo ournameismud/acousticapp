@@ -98,7 +98,23 @@ class Tests extends Component
             $i = 0;
             $records = TestRecord::find();
             foreach ( $criteria AS $key => $value) {
-                if (is_array($value)) {
+                if (is_array($value) && $key == 'glassType') {
+                    // Craft::dd($value);
+                    if (in_array('Glazed',$value) AND in_array('Unglazed',$value)) {
+                        $paras[':para_' . $i] = '';
+                        $q = $key . '!=:para_' . $i;
+                    } elseif (in_array('Glazed',$value)) {
+                        $paras[':para_' . $i] = 'Unglazed';
+                        $q = $key . '!=:para_' . $i;
+                    } elseif (in_array('Unglazed',$value)) {
+                        $paras[':para_' . $i] = 'Unglazed';
+                        $q = $key . '=:para_' . $i;                        
+                    }                    
+                    if (isset($q)) {
+                        if ($i == 0) $records->where( $q );
+                        else $records->andWhere( $q );    
+                    }
+                } elseif (is_array($value)) {
                     if ($i == 0) $records->where( ['in', $key, $value ]);
                     else $records->andWhere( ['in', $key, $value ]);
                 } elseif ($value != '') {
@@ -120,7 +136,7 @@ class Tests extends Component
                 }                    
                 $i++;
             }
-            $records->addParams( $paras );                        
+            $records->addParams( $paras );
         } else {
             $records = TestRecord::find();
         }
