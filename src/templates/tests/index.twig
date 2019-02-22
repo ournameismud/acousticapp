@@ -26,21 +26,22 @@
 	{% set favesArray = favesArray|merge([ fave.testId ]) %}
 {% endfor %}
 
-{% set p = craft.request.getParam('o') %}
-{% set sort = craft.request.getParam('sort') %}
+{% set id = craft.app.request.getParam('id') %}
+{% set p = craft.app.request.getParam('o') %}
+{% set sort = craft.app.request.getParam('sort') %}
 {% set sort = sort|length ? sort : 'asc' %}
 
 {% set p = p|length ? p : 0 %}
 {% set l = 30 %}
 
 {% set criteria = {
-	fireRating: fireRating is defined ? fireRating : craft.request.getParam('fireRating'),
-	dB_min: dB_min is defined ? dB_min : craft.request.getParam('dB_min'),
-	dB_max: dB_max is defined ? dB_max : craft.request.getParam('dB_max'),
-	manufacturer: manufacturer is defined ? manufacturer : craft.request.getParam('manufacturer'),
-	doorset: doorset is defined ? doorset : craft.request.getParam('doorset'),
-	doorThickness_min: doorThickness_min is defined ? doorThickness_min : craft.request.getParam('doorThickness_min'),
-	doorThickness_max: doorThickness_max is defined ? doorThickness_max : craft.request.getParam('doorThickness_max'),
+	fireRating: fireRating is defined ? fireRating : craft.app.request.getParam('fireRating'),
+	dB_min: dB_min is defined ? dB_min : craft.app.request.getParam('dB_min'),
+	dB_max: dB_max is defined ? dB_max : craft.app.request.getParam('dB_max'),
+	manufacturer: manufacturer is defined ? manufacturer : craft.app.request.getParam('manufacturer'),
+	doorset: doorset is defined ? doorset : craft.app.request.getParam('doorset'),
+	doorThickness_min: doorThickness_min is defined ? doorThickness_min : craft.app.request.getParam('doorThickness_min'),
+	doorThickness_max: doorThickness_max is defined ? doorThickness_max : craft.app.request.getParam('doorThickness_max'),
 } %}
 
 {% import "_includes/forms" as forms %}
@@ -80,6 +81,16 @@
 		{% set doorThickness = craft.acousticApp.getVars('doorThickness', false)|sort %}
 
 		<table class="data">
+			<tr>
+				<td colspan="2">
+					{{ forms.textField({
+					    label: 'Test ID',
+					    id: 'id',
+					    value: id is defined and id|length ? id,
+					    name: 'id' })
+					}}
+				</td>
+			</tr>
 			<tr>
 				<td colspan="2">
 					{{ forms.multiselectField({
@@ -164,7 +175,11 @@
 	<hr />
 	
 	<!--{ %if criteria|filter|length > 0 % } -->
+	{% if id is defined and id|length %}
+		{% set tests = craft.acousticApp.getTests( { lorientId: id }, sort ) %}
+	{% else %}
 		{% set tests = craft.acousticApp.getTests( criteria, sort ) %}
+	{% endif %}
 		{% if tests|length %}
 		{% set start =  p + 1 %}
 		{% set end = p + l %}
@@ -200,7 +215,7 @@
 					{% set manufacturer = test.manufacturer %}
 					{% set manufacturer = test.blankName|length ? manufacturer ~ ' ' ~ test.blankName : manufacturer %}
 					<tr>
-						<td>{{ test.id }}</td>
+						<td>{{ test.lorientId }}</td>
 						<td><a href="{{ url('/admin/acoustic-app/tests/test/' ~ test.id) }}">{{ test.testDate|date('j M Y') }}</a></td>
 						<td>{{ test.dB }}dB</td>
 						<td>{{ test.fireRating }}</td>

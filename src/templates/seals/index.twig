@@ -23,6 +23,26 @@
 
 {% block content %}
 	
-
+	{% set seals = craft.acousticApp.getSeals() %}
+	{% for key, seal in seals %}
+	{# <h2>{{ key }}</h2> #}
+	<table class="data">
+		<thead>
+		<tr>
+			<th>Product</th>
+			<th>Seal</th>
+			<th>Quantity</th>
+		</tr>
+	</thead>
+	{% for row in seal %}
+	<tr>
+		<td>{{ row.name }}</td>
+		<td>{{ key }}</td>
+		<td>{{ row.quantity }}</td>
+	</tr>
+	{% endfor %}
+	</table>
+		{# <pre>{{ dump(seal) }}</pre> #}
+	{% endfor %}
 	
 {% endblock %}

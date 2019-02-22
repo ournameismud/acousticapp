@@ -219,6 +219,7 @@ class Tests extends Component
                 'testId' => $testRecordId,
                 'context' => $key
             ])->all();
+            // TODO: delete here ???
             // explode on delimiter (, or &)
             // $seals = explode('&',$value);
             $seals = explode(',',$value);

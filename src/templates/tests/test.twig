@@ -2,11 +2,13 @@
 {% do view.registerAssetBundle("ournameismud\\acousticapp\\assetbundles\\acousticapp\\AcousticAppAsset") %}
 {% extends 'acoustic-app/layout/_cp' %}
 {% set selectedTab = 'tests' %}
-{% set selectedSubnavItem = 'bar' %}
+{% set selectedSubnavItem = 'tests' %}
+
 {% import "_includes/forms" as forms %}
+
 {% block content %}
 		
-	<h1>Test {{ testRecord.lorientId }}: {{ testRecord.testDate|date('jS F Y') }}</h1>
+	<h1>Test #{{ testRecord.lorientId }}: {{ testRecord.testDate|date('jS F Y') }}</h1>
 	{% set rows = {
 		lorientId: 'Web Ref',
 		dB: 'Acoustic Rating',
@@ -49,6 +51,7 @@
 	</tr>
 	{% endfor %}
 	</table>
+	{#
 	{% set action = actionUrl('acoustic-app/tests/save-test') %}
 	<form method="post" action="{{ action }}">
 		<input type="hidden" name="testId" value="{{ testId }}" />
@@ -62,11 +65,20 @@
 		    elements: reportAsset ? [reportAsset] : null,
 		    name: 'report' })
 		}}
-		{# 
+		<!-- 
 			TO DO:
 			need to check where else getTest is being used and distinction between id and lorientId
-		 #}
-		<button type="submit" class="btn submit">Save</button>
+		 -->
+		<button type="submit" class="btn submit">Save Test</button>
+	</form>	
+	#}	
+{% endblock %}
+
+{% block details %}
+	<form method="POST" action="" class="meta">
+		<input type="hidden" name="testId" value="{{ testId }}" />
+		<input type="hidden" name="action" value="acoustic-app/tests/delete-test" />
+		{{ csrfInput() }}
+		<button id="deleteTest" type="submit" class="btn submit">Delete Test</button>
 	</form>
-	
 {% endblock %}

@@ -78,6 +78,20 @@ class AcousticAppVariable
         return $results;
     }
 
+    // Name: getSeals
+    // Purpose: variable to retrieve seals by defined criteria
+    // Required: none
+    // Optional: $criteria, $sort
+    // Services: 
+    //      tests/getTests
+    // Returns: Tests records 
+    
+    public function getSeals( $criteria = null, $sort = 'asc' ) {
+        
+        $results = AcousticApp::getInstance()->seals->getSeals( $criteria, $sort );        
+        return $results;
+    }
+
     // Name: getFaves
     // Purpose: variable to retrieve favourites by defined criteria
     // Required: none

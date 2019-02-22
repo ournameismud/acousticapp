@@ -18,4 +18,8 @@ $(document).ready(function() {
 		$( this ).toggleClass('shut');
 		$( target ).toggleClass('shut');
 	});
+	$(document).on('click','#deleteTest',function(){
+		var c = confirm("Are you sure you want to delete this test?")
+		if (c == false) return false;
+	});
 });

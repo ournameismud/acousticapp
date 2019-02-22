@@ -58,7 +58,7 @@ class AcousticApp extends Plugin
     /**
      * @var string
      */
-    public $schemaVersion = '1.0.9.3';
+    public $schemaVersion = '1.0.10';
     public $cols = array(
         'Date of test' => 'test_testDate',
         'Acoustic Rating' => 'test_dB',
@@ -154,9 +154,9 @@ class AcousticApp extends Plugin
         $item = parent::getCpNavItem();
         $item['subnav'] = [
             'tests' => ['label' => 'Tests', 'url' => 'acoustic-app/tests'],
-            'seals' => ['label' => 'Seals', 'url' => 'acoustic-app/seals'],
             'searches' => ['label' => 'Searches', 'url' => 'acoustic-app/searches'],
             'favourites' => ['label' => 'Favourites', 'url' => 'acoustic-app/favourites'],
+            'upload' => ['label' => 'Upload', 'url' => 'acoustic-app/upload'],
         ];
         return $item;
 

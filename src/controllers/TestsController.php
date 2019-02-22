@@ -218,6 +218,25 @@ class TestsController extends Controller
         
     }
 
+    public function actionDeleteTest()
+    {
+        $site = Craft::$app->getSites()->getCurrentSite();
+        $this->requirePostRequest();        
+        $request = Craft::$app->getRequest();
+        $testId = $request->getBodyParam('testId');
+        // Craft::dd($testId);
+        $testSeals = TestsSealsRecord::deleteAll([ 
+            'siteId' => $site->id,
+            'testId' => $testId
+        ]);
+        $testRecord = TestRecord::deleteAll([ 
+            'siteId' => $site->id,
+            'id' => $testId
+        ]);
+        // do we need to get and check against report here (and delete)
+        return $this->redirect('acoustic-app/tests');
+    }
+
     public function actionSaveTest()
     {
         $this->requirePostRequest();        
