@@ -26,11 +26,33 @@
 
 {% block content %}
 	{#  TO DO: formatting here #}
+	<table class="data">
+	<thead>
+		<tr>
+			<th>Test</th>
+			<th>User</th>
+			<th>Date</th>
+		</tr>
+	</thead>
+	<tbody>
 	{% for fave in faves %}
-	<p>
+	<tr>
 		{% set user = craft.users({ id: fave.userId})|first %}
-		<a href="{{ url('/admin/acoustic-app/tests/test/' ~ fave.testId) }}">Test {{ fave.testId }}</a> {{ user|length ? 'by ' ~ user.fullName }}
-
-	</p>
+		<td>
+			<a href="{{ url('/admin/acoustic-app/tests/test/' ~ fave.testId) }}">Test {{ fave.testId }}</a>
+		</td>
+		<td>
+		{% if user|length %}
+			<a href="{{ url( 'users/' ~ fave.userId ) }}" target="_blank">{{ user.fullName }}</a>
+		{% else %}
+			<s>Legacy User</s>
+		{% endif %}
+		</td>
+		<td>
+		{{ fave.dateUpdated|date('jS F Y') }}
+		</td>
+	</tr>
 	{% endfor %}
+	</tbody>
+	</table>
 {% endblock %}

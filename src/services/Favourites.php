@@ -85,7 +85,7 @@ class Favourites extends Component
             $record->$key = $value;
         }
         $record->save();
-        return 'Records added';
+        return 'Favourite added';
     }
 
     // Name: deleteFavourite
@@ -99,6 +99,6 @@ class Favourites extends Component
         $records = FavouriteRecord::find()
             ->where( $criteria )->one();
         $records->delete();
-        return 'Record deleted';
+        return 'Favourite removed';
     }
 }

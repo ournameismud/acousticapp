@@ -1,8 +1,14 @@
-{% set title = 'Acoustic App: Test '~ testRecord.lorientId %}
+
+{% set title = 'Test '~ testRecord.lorientId ~ ' | Acoustic App' %}
 {% do view.registerAssetBundle("ournameismud\\acousticapp\\assetbundles\\acousticapp\\AcousticAppAsset") %}
 {% extends 'acoustic-app/layout/_cp' %}
 {% set selectedTab = 'tests' %}
 {% set selectedSubnavItem = 'tests' %}
+{% set faves = craft.acousticApp.getFaves( currentUser.id ) %}
+{% set favesArray = [] %}
+{% for fave in faves %}
+	{% set favesArray = favesArray|merge([ fave.testId ]) %}
+{% endfor %}
 
 {% import "_includes/forms" as forms %}
 
@@ -80,5 +86,12 @@
 		<input type="hidden" name="action" value="acoustic-app/tests/delete-test" />
 		{{ csrfInput() }}
 		<button id="deleteTest" type="submit" class="btn submit">Delete Test</button>
+	</form>
+	<form method="POST" action="" class="meta">
+		{{ csrfInput() }}
+		{{ redirectInput('acoustic-app/tests/test/' ~ testId) }}
+		<input type="hidden" name="action" value="acoustic-app/favourites/post" />
+		<input type="hidden" name="testId" value="{{ testId }}" />
+		<button type="submit" class="fave btn{{ testId in favesArray ? ' active' }}">{{ testId in favesArray ? 'Unf' : 'F' }}avourite</button>
 	</form>
 {% endblock %}
