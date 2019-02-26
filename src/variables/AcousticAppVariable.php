@@ -120,8 +120,14 @@ class AcousticAppVariable
     // Returns: TestSeals records 
     
     public function getTestSeals( int $testId ) {        
-        $testSeals = AcousticApp::getInstance()->seals->getSealsByTest( $testId );
-        return $testSeals;
+        $test = AcousticApp::getInstance()->tests->getTests( ['lorientId'=>$testId] );
+        if (count($test) > 0) {
+            $testRecord = $test[0];
+            $testSeals = AcousticApp::getInstance()->seals->getSealsByTest( $testRecord->id );
+            return $testSeals;
+        }   else {
+            return false;
+        }
     }
 
     public function getProdIds() {        
