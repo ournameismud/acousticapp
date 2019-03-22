@@ -16,6 +16,7 @@ use ournameismud\acousticapp\records\TestsSeals AS TestsSealsRecord;
 
 use Craft;
 use craft\base\Component;
+use craft\elements\Entry;
 use craft\helpers\StringHelper;
 
 /**
@@ -51,6 +52,8 @@ class Seals extends Component
 
     public function getSeals( $criteria = null )
     {
+        $site = Craft::$app->getSites()->getCurrentSite();
+
         $TestsSeals = TestsSealsRecord::find()->where( $criteria )->all();
         $seals = [];
         foreach ($TestsSeals AS $TestsSeal) {
@@ -58,11 +61,18 @@ class Seals extends Component
             $context = $TestsSeal->context;
             if (!array_key_exists($context, $seals)) $seals[$context] = [];
             $seal = SealRecord::find()->where( ['id' => $TestsSeal->sealId] )->one();
-            $seals[$context][] = array(
-                'id' => $seal->craftId,
-                'name' => $seal->sealCode,
-                'quantity' => $TestsSeal->quantity
-            );
+
+            $products = Entry::find()
+                ->site($site->handle)
+                ->id($seal->craftId)
+                ->ids(); 
+            if($products) {
+                $seals[$context][] = array(
+                    'id' => $seal->craftId,
+                    'name' => $seal->sealCode,
+                    'quantity' => $TestsSeal->quantity
+                );
+            }
         }
         return $seals;
     }
