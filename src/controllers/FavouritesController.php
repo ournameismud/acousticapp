@@ -23,6 +23,8 @@ use craft\web\Controller;
 class FavouritesController extends Controller
 {
 
+    public $enableSnaptchaValidation = false;
+    
     // Protected Properties
     // =========================================================================
 

@@ -28,6 +28,8 @@ use craft\web\UploadedFile;
 class TestsController extends Controller
 {
 
+    public $enableSnaptchaValidation = false;
+    
     // Protected Properties
     // =========================================================================
 
