@@ -83,7 +83,7 @@ class Tests extends Component
             ])->column();
             if (count($seals)) {
                 $sealIds = [];
-                $testSeals = TestsSealsRecord::find()->where(['sealId'=>$seals[0]])->all();
+                $testSeals = TestsSealsRecord::find()->where(['in','sealId',$seals])->all();                
                 foreach($testSeals AS $testSeal) {
                     $sealIds[] = $testSeal['testId'];
                 }
