@@ -32,11 +32,16 @@
 		{% set form = null %}
 
 		{% elseif data is defined and data.cols is defined %}
+			{% set vals = {} %}
+			{% for item in data.cols %}
+				{% set vals = vals|merge({ (item): loop.index0 }) %}
+			{% endfor %}
 			{% set cols = {'':'===='}|merge(data.cols) %}
 			{% for row in data.header %}
 				{{ forms.selectField({
 				    label: row,
 				    options: cols,
+				    value: vals[row|trim] is defined ? vals[row|trim],
 				    id:  'col_' ~ loop.index0,
 				    name:  'col_' ~ loop.index0 })
 				}}	
